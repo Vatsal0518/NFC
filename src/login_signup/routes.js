@@ -25,7 +25,7 @@ router.post('/signup', async (req, res) => {
     await user.save();
 
     // Send verification email
-    await sendVerificationEmail(user, token1);
+    await sendVerificationEmail(user, token);
     
     res.status(201).send({ message: 'User created successfully. Please check your email to verify your account.' });
   } catch (err) {
