@@ -7,32 +7,38 @@ const sendVerificationEmail = require('./mailer'); // Assuming you saved the mai
 const JWT_SECRET = 'Vatsal0501';
 
 
-
+//singup code
+// Signup Route
 // Signup Route
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send({ error: 'A user with this email already exists. Please log in.' });
+    }
+
     const user = new User({ username, email, password });
-    const token1 = user.generateEmailVerificationToken();
+    const token = user.generateEmailVerificationToken();
     await user.save();
 
     // Send verification email
-    await sendVerificationEmail(user, token);
+    await sendVerificationEmail(user, token1);
     
-
     res.status(201).send({ message: 'User created successfully. Please check your email to verify your account.' });
   } catch (err) {
-    console.log(err)
-    
-    res.status(400).send({ error: err.message });
+    if (err.code && err.code === 11000) { // Duplicate key error
+      return res.status(400).send({ error: 'A user with this email already exists. Please log in.' });
+    }
+    console.log(err);
+    res.status(400).send({ error: 'An error occurred. Please try again later.' });
   }
 });
-
-// Email Verification Route
-// Email Verification Route
+//verify emial
 router.get('/verify-email', async (req, res) => {
-  const { token1 } = req.query;
+  const { token } = req.query; // Ensure the token parameter matches
 
   try {
     const user = await User.findOne({
@@ -60,9 +66,10 @@ router.get('/verify-email', async (req, res) => {
       </html>
     `);
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    res.status(500).send({ error: 'Server error during email verification' });
   }
 });
+
 
 // Login Route
 router.post('/login', async (req, res) => {
@@ -70,30 +77,28 @@ router.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user || !user.isEmailVerified) {
-      return res.status(400).send({ error: 'Invalid email or password or email not verified' });
+    if (!user) {
+      return res.status(400).send({ error: 'No account found with this email. Please check your email or sign up.' });
+    }
+
+    if (!user.isEmailVerified) {
+      return res.status(400).send({ error: 'Email not verified. Please check your email for verification instructions.' });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).send({ error: 'Invalid email or password' });
+      return res.status(400).send({ error: 'Incorrect password. Please try again.' });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '30000000' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Adjust token expiration
     res.send({ token });
   } catch (err) {
-    res.status(500).send({ error: 'Server error' });
+    res.status(500).send({ error: 'Server error. Please try again later.' });
   }
 });
-router.get('/admin', async (req, res) => {
-  
-  try {
-    const response  = await User.find();
-    res.send(response)
-  } catch (err) {
-    res.status(400).send({ error: err.message });
-  }
-});
+
+
+
 router.get('/:id', async (req, res) => {
   const _id = req.params.id;
   try {
