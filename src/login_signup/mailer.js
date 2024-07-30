@@ -3,11 +3,11 @@ const nodemailer = require('nodemailer');
 // Configure your SMTP transport (e.g., using Gmail)
 const transporter = nodemailer.createTransport({
 
-  host: 'smtp.ethereal.email',
-    port: 587,
+  host: 'smtp.gmail.com',
+    port: 465,
     auth: {
-        user: 'conor.champlin@ethereal.email',
-        pass: 'uDn38Sx8ZfUXZkrgbT'
+        user: 'vatsalchauhan009@gmail.com',
+        pass: 'jptkzekhfxormxfs'
     }
 });
 
