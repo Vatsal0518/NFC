@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -20,9 +21,19 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: 6
   },
-  isAdmin:{
-    type:Boolean,
-    default:false
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: {
+    type: String
+  },
+  emailVerificationTokenExpiry: {
+    type: Date
   }
 });
 
@@ -37,6 +48,13 @@ UserSchema.pre('save', async function (next) {
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+UserSchema.methods.generateEmailVerificationToken = function () {
+  const token = crypto.randomBytes(20).toString('hex');
+  this.emailVerificationToken = token;
+  this.emailVerificationTokenExpiry = Date.now() + 3600000; // 1 hour
+  return token;
 };
 
 const User = mongoose.model('User', UserSchema);
