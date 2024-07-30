@@ -90,7 +90,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).send({ error: 'Incorrect password. Please try again.' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Adjust token expiration
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' }); // Adjust token expiration
     res.send({ token });
   } catch (err) {
     res.status(500).send({ error: 'Server error. Please try again later.' });
