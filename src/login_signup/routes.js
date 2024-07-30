@@ -6,6 +6,8 @@ const sendVerificationEmail = require('./mailer'); // Assuming you saved the mai
 
 const JWT_SECRET = 'Vatsal0501';
 
+
+
 // Signup Route
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
@@ -17,13 +19,17 @@ router.post('/signup', async (req, res) => {
 
     // Send verification email
     await sendVerificationEmail(user, token);
+    
 
     res.status(201).send({ message: 'User created successfully. Please check your email to verify your account.' });
   } catch (err) {
+    console.log(err)
+    
     res.status(400).send({ error: err.message });
   }
 });
 
+// Email Verification Route
 // Email Verification Route
 router.get('/verify-email', async (req, res) => {
   const { token } = req.query;
@@ -43,7 +49,16 @@ router.get('/verify-email', async (req, res) => {
     user.emailVerificationTokenExpiry = undefined;
     await user.save();
 
-    res.send({ message: 'Email successfully verified. You can now log in.' });
+    // Respond with an HTML page
+    res.send(`
+      <html>
+        <head><title>Email Verified</title></head>
+        <body>
+          <h1>Email successfully verified</h1>
+          <p>You can now <a href="https://viscocard.netlify.app/login">log in here</a>.</p>
+        </body>
+      </html>
+    `);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }

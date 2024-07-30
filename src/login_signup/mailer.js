@@ -2,19 +2,21 @@ const nodemailer = require('nodemailer');
 
 // Configure your SMTP transport (e.g., using Gmail)
 const transporter = nodemailer.createTransport({
-  service: 'Gmail', // or another email service
-  auth: {
-    user: 'your-email@gmail.com',
-    pass: 'your-email-password'
-  }
+
+  host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+        user: 'conor.champlin@ethereal.email',
+        pass: 'uDn38Sx8ZfUXZkrgbT'
+    }
 });
 
 // Function to send verification email
 const sendVerificationEmail = async (user, token) => {
-  const verificationUrl = `http://yourdomain.com/verify-email?token=${token}`;
+  const verificationUrl = `https://nfc-1.onrender.com/verify-email?token=${token}`;
 
   const mailOptions = {
-    from: 'no-reply@yourdomain.com',
+    from: 'vatsalchauhan0009@gmail.com',
     to: user.email,
     subject: 'Email Verification',
     html: `
