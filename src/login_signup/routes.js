@@ -14,7 +14,7 @@ router.post('/signup', async (req, res) => {
 
   try {
     const user = new User({ username, email, password });
-    const token = user.generateEmailVerificationToken();
+    const token1 = user.generateEmailVerificationToken();
     await user.save();
 
     // Send verification email
@@ -32,7 +32,7 @@ router.post('/signup', async (req, res) => {
 // Email Verification Route
 // Email Verification Route
 router.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
+  const { token1 } = req.query;
 
   try {
     const user = await User.findOne({
@@ -83,6 +83,24 @@ router.post('/login', async (req, res) => {
     res.send({ token });
   } catch (err) {
     res.status(500).send({ error: 'Server error' });
+  }
+});
+router.get('/admin', async (req, res) => {
+  
+  try {
+    const response  = await User.find();
+    res.send(response)
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+router.get('/:id', async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const response  = await User.findById(_id);
+    res.send(response)
+  } catch (err) {
+    res.status(400).send({ error: err.message });
   }
 });
 
